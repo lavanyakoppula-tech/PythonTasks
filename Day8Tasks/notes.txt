@@ -1,0 +1,6 @@
+try:
+    f = open("notes.txt")
+    print(f.read())
+    f.close()
+except:
+    print("File not found, please create notes.txt")

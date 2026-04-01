@@ -1,3 +1,7 @@
 def fact(n):
-    return 1 if n==0 else n*fact(n-1)
+    f=1 
+    while(n>0):
+       f*=n
+       n=n-1
+    return f
 print(fact(5))
