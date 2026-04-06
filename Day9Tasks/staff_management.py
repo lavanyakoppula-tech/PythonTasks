@@ -16,3 +16,8 @@ a = Administrator("Kiran")
 p.show()
 l.show()
 a.show()
+
+
+
+#Hierarchical Inheritance = One base class, many child classes
+#All child classes share common properties from parent
