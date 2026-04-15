@@ -1,0 +1,8 @@
+Student Dictionary:
+{'Ram': 45, 'ajay': 67, 'John': 55, 'sai': 30}
+
+Students scoring above 50:
+['ajay', 'John']
+
+Average Marks:
+49.25
