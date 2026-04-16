@@ -4,80 +4,67 @@ import pandas as pd
 import math
 
 
+# OOP: Student class
 class Student:
     def __init__(self, name, marks):
         self.name = name
         self.marks = marks
-        self.grade = self.assign_grade()
+        self.grade = self.calculate_grade()
 
-    def assign_grade(self):
+    # Assign grade using conditions
+    def calculate_grade(self):
         if self.marks >= 90:
-            return 'A'
+            return "A"
         elif self.marks >= 75:
-            return 'B'
-        elif self.marks >= 60:
-            return 'C'
-        elif self.marks >= 40:
-            return 'D'
+            return "B"
+        elif self.marks >= 50:
+            return "C"
         else:
-            return 'F'
-
-    def to_dict(self):
-        return {
-            "Name": self.name,
-            "Marks": self.marks,
-            "Grade": self.grade
-        }
+            return "Fail"
 
 
+try:
+    # Generate random marks
+    names = ["Alice", "Bob", "Charlie", "David", "Eve"]
+    marks_list = [random.randint(0, 100) for _ in range(len(names))]
 
-# Main Simulation Function
-def simulate_results(num_students):
-    try:
-        students = []
-        marks_list = []
+    # Store in NumPy array
+    marks_array = np.array(marks_list)
 
-        # Generate random marks
-        for i in range(num_students):
-            name = f"Student_{i+1}"
-            marks = random.randint(0, 100)
-            student = Student(name, marks)
+    # Create Student objects using loop
+    students = []
+    for i in range(len(names)):
+        students.append(Student(names[i], marks_array[i]))
 
-            students.append(student)
-            marks_list.append(marks)
+    # Convert to Pandas DataFrame
+    data = {
+        "Name": [s.name for s in students],
+        "Marks": [s.marks for s in students],
+        "Grade": [s.grade for s in students]
+    }
 
-        # Convert to NumPy array
-        marks_array = np.array(marks_list)
+    df = pd.DataFrame(data)
 
-        # Math module statistics
-        mean_marks = sum(marks_list) / len(marks_list)
-        variance = sum((x - mean_marks) ** 2 for x in marks_list) / len(marks_list)
-        std_dev = math.sqrt(variance)
+    # Math module for statistics
+    avg = sum(marks_array) / len(marks_array)
+    highest = max(marks_array)
+    lowest = min(marks_array)
+    sqrt_avg = math.sqrt(avg)
 
-        print(f"Mean Marks: {mean_marks:.2f}")
-        print(f"Standard Deviation: {std_dev:.2f}")
+    # Print report
+    print("Student Report:\n")
+    print(df)
 
-        # Convert to Pandas DataFrame
-        df = pd.DataFrame([s.to_dict() for s in students])
+    print("\nStatistics:")
+    print("Average:", avg)
+    print("Highest:", highest)
+    print("Lowest:", lowest)
+    print("Square root of average:", sqrt_avg)
 
-        return df
-
-    except Exception as e:
-        print(f"Error occurred: {e}")
-
-def save_report(df, filename="report.csv"):
-    try:
-        df.to_csv(filename, index=False)
-        print(f"Report saved successfully as {filename}")
-    except Exception as e:
-        print(f"Error saving file: {e}")
+    # Save report to file
+    df.to_csv("student_report.csv", index=False)
+    print("\nReport saved to student_report.csv")
 
 
-if __name__ == "__main__":
-    df = simulate_results(5)
-
-    if df is not None:
-        print("\nStudent Report:")
-        print(df)
-
-        save_report(df)
+except Exception as e:
+    print("An error occurred:", e)

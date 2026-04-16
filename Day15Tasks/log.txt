@@ -1,0 +1,5 @@
+INFO: Start
+ERROR: File missing
+ERROR: Disk full
+WARNING: Low memory
+ERROR: File missing
