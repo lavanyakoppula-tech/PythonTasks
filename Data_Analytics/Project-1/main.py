@@ -1,10 +1,6 @@
-# =======================================================================================================
-#  Project Title: Railway Gauge Data Study
+
+#Project Title: Railway Gauge Data Study
 # Using NumPy, Pandas, and Matplotlib for analysis
-
-
-
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -41,10 +37,10 @@ print(data.dtypes)
 
 
 
-yrs = data["Year"]
-tot_tracks = data["Total"]
+years = data["Year"]
+total_tracks = data["Total"]
 
-plt.plot(yrs, tot_tracks, marker='o')
+plt.plot(years, total_tracks, marker='o')
 plt.title("Growth of Total Railway Tracks")
 plt.xlabel("Year")
 plt.ylabel("Total Length")
@@ -100,11 +96,7 @@ totals = pd.Series({
     "Narrow": data["Narrow Gauge"].sum()
 })
 
-plt.pie(totals,
-        labels=["Broad Gauge", "Metre Gauge", "Narrow Gauge"],
-        autopct="%1.1f%%",
-        startangle=180,
-        explode=(0.1, 0, 0))
+plt.pie(totals,labels=["Broad Gauge", "Metre Gauge", "Narrow Gauge"],autopct="%1.1f%%",startangle=180,explode=(0.1, 0, 0))
 
 plt.title("Gauge Contribution Percentage")
 plt.show()
