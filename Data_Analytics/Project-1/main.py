@@ -3,7 +3,7 @@
 # Using NumPy, Pandas, and Matplotlib for analysis
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
 
 #Scenario 1: Basic Data Loading & Cleaning Data
 """1. Load the dataset into a Pandas DataFrame. 
