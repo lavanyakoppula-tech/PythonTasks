@@ -45,11 +45,11 @@ print(df[["score","release_year","release_month","release_day"]])
 2. Calculate average score per year using Pandas. 
 3. Convert results into NumPy arrays. 
 4. Plot a line graph: 
-○ X-axis → release_year 
-○ Y-axis → average score 
+ #X-axis → release_year 
+# Y-axis → average score 
 5. Add: 
-○ Title: "Average Game Score Over Years" 
-○ Axis labels 
+#Title: "Average Game Score Over Years" 
+#Axis labels 
 6. Save the graph: plt.savefig("avg_score_trend.png")"""
 
 yearly_avg = df.groupby("release_year")["score"].mean()
