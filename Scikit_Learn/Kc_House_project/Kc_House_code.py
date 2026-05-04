@@ -202,3 +202,61 @@ y_pred = classifier.predict(X_test)
 
 print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
 print("{:.0%}".format(accuracy_score(y_test, y_pred)))
+
+# ============================================================
+# 8. AdaBoost Classifier
+# ============================================================
+# AdaBoost focuses more on incorrectly classified data points.
+# It gives higher importance (weight) to difficult samples.
+
+from sklearn.ensemble import AdaBoostClassifier
+classifier = AdaBoostClassifier()
+print(classifier)
+
+# Train model
+classifier.fit(X_train, y_train)
+
+# Predict test data
+y_pred = classifier.predict(X_test)
+
+# Evaluate accuracy
+print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
+print("{:.0%}".format(accuracy_score(y_test, y_pred)))
+# ============================================================
+# 9. Extra Trees Classifier
+# ============================================================
+# Extra Trees is similar to Random Forest but adds more randomness.
+# It selects random splits instead of best splits.
+
+from sklearn.ensemble import ExtraTreesClassifier
+classifier = ExtraTreesClassifier()
+print(classifier)
+
+# Train model
+classifier.fit(X_train, y_train)
+
+# Predict test data
+y_pred = classifier.predict(X_test)
+
+# Evaluate accuracy
+print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
+print("{:.0%}".format(accuracy_score(y_test, y_pred)))
+# ============================================================
+# 10. Bagging Classifier
+# ============================================================
+# Bagging trains multiple models on different random subsets of data.
+# Final prediction is based on averaging or voting.
+
+from sklearn.ensemble import BaggingClassifier
+classifier = BaggingClassifier()
+print(classifier)
+
+# Train model
+classifier.fit(X_train, y_train)
+
+# Predict test data
+y_pred = classifier.predict(X_test)
+
+# Evaluate accuracy
+print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
+print("{:.0%}".format(accuracy_score(y_test, y_pred)))
