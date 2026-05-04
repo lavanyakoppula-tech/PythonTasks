@@ -204,59 +204,85 @@ print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
 print("{:.0%}".format(accuracy_score(y_test, y_pred)))
 
 # ============================================================
-# 8. AdaBoost Classifier
+# 8. Gradient Boosting Regressor
 # ============================================================
-# AdaBoost focuses more on incorrectly classified data points.
-# It gives higher importance (weight) to difficult samples.
+# Gradient Boosting builds models sequentially to correct previous errors.
+# It predicts continuous values and improves accuracy using multiple weak learners.
 
-from sklearn.ensemble import AdaBoostClassifier
-classifier = AdaBoostClassifier()
-print(classifier)
+from sklearn.ensemble import GradientBoostingRegressor
+regressor = GradientBoostingRegressor()
+print(regressor)
 
-# Train model
-classifier.fit(X_train, y_train)
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
 
-# Predict test data
-y_pred = classifier.predict(X_test)
+# Evaluate using R2 Score
+from sklearn.metrics import r2_score
+print('\n'+'-'*20+'R2 Score on the Test set'+'-'*20)
+print("{:.2f}".format(r2_score(y_test, y_pred)))
 
-# Evaluate accuracy
-print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
-print("{:.0%}".format(accuracy_score(y_test, y_pred)))
 # ============================================================
-# 9. Extra Trees Classifier
+# 9. Linear Regression
 # ============================================================
-# Extra Trees is similar to Random Forest but adds more randomness.
-# It selects random splits instead of best splits.
+# Linear Regression models a linear relationship between features and target.
+# It predicts continuous values like house prices.
 
-from sklearn.ensemble import ExtraTreesClassifier
-classifier = ExtraTreesClassifier()
-print(classifier)
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+print(regressor)
 
-# Train model
-classifier.fit(X_train, y_train)
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
 
-# Predict test data
-y_pred = classifier.predict(X_test)
+from sklearn.metrics import r2_score
+print('\n'+'-'*20+'R2 Score on the Test set'+'-'*20)
+print("{:.2f}".format(r2_score(y_test, y_pred)))
 
-# Evaluate accuracy
-print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
-print("{:.0%}".format(accuracy_score(y_test, y_pred)))
 # ============================================================
-# 10. Bagging Classifier
+# 10. Ridge Regression
 # ============================================================
-# Bagging trains multiple models on different random subsets of data.
-# Final prediction is based on averaging or voting.
+# Ridge Regression reduces overfitting using regularization.
+# It works well when features are highly correlated.
 
-from sklearn.ensemble import BaggingClassifier
-classifier = BaggingClassifier()
-print(classifier)
+from sklearn.linear_model import Ridge
+regressor = Ridge()
+print(regressor)
 
-# Train model
-classifier.fit(X_train, y_train)
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
 
-# Predict test data
-y_pred = classifier.predict(X_test)
+print('\n'+'-'*20+'R2 Score on the Test set'+'-'*20)
+print("{:.2f}".format(r2_score(y_test, y_pred)))
 
-# Evaluate accuracy
-print('\n'+'-'*20+'Accuracy Score on the Test set'+'-'*20)
-print("{:.0%}".format(accuracy_score(y_test, y_pred)))
+# ============================================================
+# 11. Decision Tree Regressor
+# ============================================================
+# Decision Tree splits data into rules to predict values.
+# It handles non-linear relationships in housing data.
+
+from sklearn.tree import DecisionTreeRegressor
+regressor = DecisionTreeRegressor()
+print(regressor)
+
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+
+print('\n'+'-'*20+'R2 Score on the Test set'+'-'*20)
+print("{:.2f}".format(r2_score(y_test, y_pred)))
+
+# ============================================================
+# 12. Random Forest Regressor
+# ============================================================
+# Random Forest combines multiple trees for better accuracy.
+# It reduces overfitting and improves prediction stability.
+
+from sklearn.ensemble import RandomForestRegressor
+regressor = RandomForestRegressor()
+print(regressor)
+
+regressor.fit(X_train, y_train)
+y_pred = regressor.predict(X_test)
+
+print('\n'+'-'*20+'R2 Score on the Test set'+'-'*20)
+print("{:.2f}".format(r2_score(y_test, y_pred)))
+
