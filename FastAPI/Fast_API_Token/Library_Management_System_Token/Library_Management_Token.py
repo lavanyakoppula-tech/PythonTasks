@@ -1,37 +1,32 @@
 # ============================================================
-# 🔐 FastAPI Library Management System + JWT Authentication
-# 🔐 MySQL + Exception Handling Version
+# 🔐 FASTAPI + JWT + MYSQL LIBRARY MANAGEMENT SYSTEM
 # ============================================================
 
 # ============================================================
-# 🚀 WHAT WE ARE BUILDING
+# ✅ INSTALL REQUIRED PACKAGES
 # ============================================================
 
-'''
-This project includes:
-
-✅ FastAPI
-✅ MySQL Database
-✅ JWT Authentication
-✅ CRUD Operations
-✅ Protected APIs using Token
-✅ Exception Handling
-✅ Duplicate Validation
-✅ Production Level APIs
-
-Database used:
-MySQL
-'''
+# pip install fastapi uvicorn sqlalchemy pymysql python-jose python-multipart
 
 # ============================================================
-# 🚀 INSTALL REQUIRED PACKAGES
+# ✅ CREATE MYSQL DATABASE
 # ============================================================
 
-'''
-pip install fastapi uvicorn sqlalchemy pymysql
-pip install python-jose
-pip install python-multipart
-'''
+# Open MySQL and run:
+#
+# CREATE DATABASE jwt_library_db;
+
+# ============================================================
+# ✅ RUN APPLICATION
+# ============================================================
+
+# uvicorn main:app --reload
+
+# ============================================================
+# ✅ SWAGGER URL
+# ============================================================
+
+# http://127.0.0.1:8000/docs
 
 # ============================================================
 # 📦 IMPORTS
@@ -39,7 +34,7 @@ pip install python-multipart
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from sqlalchemy import (
     create_engine,
@@ -55,14 +50,12 @@ from sqlalchemy.orm import (
     Session
 )
 
-from sqlalchemy.exc import SQLAlchemyError
-
-from jose import JWTError, jwt
+from jose import jwt, JWTError
 
 from datetime import datetime, timedelta
 
 # ============================================================
-# 🚀 CREATE FASTAPI APP
+# 🚀 FASTAPI APP
 # ============================================================
 
 app = FastAPI()
@@ -71,15 +64,59 @@ app = FastAPI()
 # 🗄️ MYSQL DATABASE CONFIGURATION
 # ============================================================
 
-'''
-mysql+pymysql://username:password@host:port/database
-'''
+DB_USER = "root"
 
-DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/library_db"
+# CHANGE THIS PASSWORD
+DB_PASSWORD = "root"
 
-engine = create_engine(DATABASE_URL)
+DB_HOST = "localhost"
 
-SessionLocal = sessionmaker(bind=engine)
+DB_PORT = "3306"
+
+DB_NAME = "jwt_library_db"
+
+DATABASE_URL = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
+
+# ============================================================
+# 🔌 DATABASE ENGINE
+# ============================================================
+
+engine = create_engine(
+    DATABASE_URL,
+    echo=True,
+    pool_pre_ping=True
+)
+
+# ============================================================
+# ✅ TEST DATABASE CONNECTION
+# ============================================================
+
+try:
+
+    connection = engine.connect()
+
+    print("✅ MySQL Connected Successfully")
+
+    connection.close()
+
+except Exception as e:
+
+    print("❌ MySQL Connection Failed")
+
+    print(e)
+
+# ============================================================
+# 🗄️ SESSION
+# ============================================================
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
 
 Base = declarative_base()
 
@@ -87,49 +124,17 @@ Base = declarative_base()
 # 🔐 JWT CONFIGURATION
 # ============================================================
 
-'''
-SECRET_KEY
------------
-Used to sign the token
-'''
-
 SECRET_KEY = "mysecretkey"
-
-# ------------------------------------------------------------
-
-'''
-ALGORITHM
------------
-Encryption algorithm used to create token
-
-HS256 = Most commonly used JWT algorithm
-'''
 
 ALGORITHM = "HS256"
 
-# ------------------------------------------------------------
-
-'''
-TOKEN EXPIRY TIME
-------------------
-
-1 Hour Token Expiry
-'''
-
-ACCESS_TOKEN_EXPIRE = timedelta(hours=1)
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 # ============================================================
 # 🧾 PYDANTIC MODELS
 # ============================================================
 
-'''
-Used for:
-- Request validation
-- Data structure
-- Auto API documentation
-'''
-
-class Login(BaseModel):
+class User(BaseModel):
 
     username: str
     password: str
@@ -145,12 +150,8 @@ class Book(BaseModel):
     published_year: int
     available: bool = True
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
-
 # ============================================================
-# 👤 MYSQL USER TABLE
+# 👤 USER TABLE
 # ============================================================
 
 class UserDB(Base):
@@ -168,17 +169,12 @@ class UserDB(Base):
         unique=True
     )
 
-    email = Column(
-        String(150),
-        unique=True
-    )
-
     password = Column(
         String(100)
     )
 
 # ============================================================
-# 📚 MYSQL BOOK TABLE
+# 📚 BOOK TABLE
 # ============================================================
 
 class BookDB(Base):
@@ -193,23 +189,19 @@ class BookDB(Base):
 
     title = Column(
         String(255),
-        unique=True,
-        nullable=False
+        unique=True
     )
 
     author = Column(
-        String(255),
-        nullable=False
+        String(255)
     )
 
     category = Column(
-        String(255),
-        nullable=False
+        String(255)
     )
 
     published_year = Column(
-        Integer,
-        nullable=False
+        Integer
     )
 
     available = Column(
@@ -245,76 +237,25 @@ def get_db():
 
 def create_access_token(data: dict):
 
-    '''
-    Steps:
-    1. Copy incoming data
-    2. Add expiry time
-    3. Encode token using secret key
-    4. Return generated JWT token
-    '''
+    to_encode = data.copy()
 
-    try:
+    expire = datetime.utcnow() + timedelta(
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+    )
 
-        # Copy data
-        to_encode = data.copy()
+    to_encode.update({"exp": expire})
 
-        # Create expiry time
-        expire = datetime.utcnow() + ACCESS_TOKEN_EXPIRE
+    encoded_jwt = jwt.encode(
+        to_encode,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
 
-        '''
-        Example:
-
-        Current Time = 10:00 AM
-
-        Expiry = 1 Hour
-
-        Token Expiry = 11:00 AM
-        '''
-
-        # Add expiry into payload
-        to_encode.update({"exp": expire})
-
-        '''
-        Final JWT Payload Example:
-
-        {
-            "sub": "admin",
-            "exp": "11:00 AM"
-        }
-        '''
-
-        # Generate encoded JWT token
-        encoded_jwt = jwt.encode(
-            to_encode,
-            SECRET_KEY,
-            algorithm=ALGORITHM
-        )
-
-        return encoded_jwt
-
-    except Exception:
-
-        raise HTTPException(
-            status_code=500,
-            detail="Unable to create access token"
-        )
+    return encoded_jwt
 
 # ============================================================
 # 🔐 TOKEN VALIDATION
 # ============================================================
-
-'''
-OAuth2PasswordBearer
----------------------
-
-Automatically:
-- Reads Authorization header
-- Extracts Bearer token
-
-Example Header:
-
-Authorization: Bearer eyJhbGc...
-'''
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="login"
@@ -326,17 +267,6 @@ def verify_token(
     token: str = Depends(oauth2_scheme)
 ):
 
-    '''
-    This function validates token.
-
-    Steps:
-    1. Read token
-    2. Decode token
-    3. Verify secret key
-    4. Verify expiry time
-    5. Extract user info
-    '''
-
     try:
 
         payload = jwt.decode(
@@ -345,19 +275,8 @@ def verify_token(
             algorithms=[ALGORITHM]
         )
 
-        '''
-        Example Payload:
-
-        {
-            "sub": "admin",
-            "exp": "11:00 AM"
-        }
-        '''
-
-        # Extract username
         username = payload.get("sub")
 
-        # Check username exists
         if username is None:
 
             raise HTTPException(
@@ -368,13 +287,6 @@ def verify_token(
         return username
 
     except JWTError:
-
-        '''
-        Happens when:
-        - Token expired
-        - Wrong secret key
-        - Invalid token
-        '''
 
         raise HTTPException(
             status_code=401,
@@ -389,7 +301,43 @@ def verify_token(
 def home():
 
     return {
-        "message": "FastAPI + JWT + MySQL CRUD 🚀"
+        "message": "FastAPI + JWT + MySQL CRUD API"
+    }
+
+# ============================================================
+# 👤 REGISTER USER API
+# ============================================================
+
+@app.post("/register")
+def register(
+    user: User,
+    db: Session = Depends(get_db)
+):
+
+    existing_user = db.query(UserDB).filter(
+        UserDB.username == user.username
+    ).first()
+
+    if existing_user:
+
+        raise HTTPException(
+            status_code=400,
+            detail="Username already exists"
+        )
+
+    new_user = UserDB(
+        username=user.username,
+        password=user.password
+    )
+
+    db.add(new_user)
+
+    db.commit()
+
+    db.refresh(new_user)
+
+    return {
+        "message": "User registered successfully"
     }
 
 # ============================================================
@@ -398,78 +346,40 @@ def home():
 
 @app.post("/login")
 def login(
-    user: Login,
+    user: User,
     db: Session = Depends(get_db)
 ):
 
-    '''
-    Login Flow:
+    existing_user = db.query(UserDB).filter(
+        UserDB.username == user.username
+    ).first()
 
-    1. Check user exists in MySQL
-    2. Verify password
-    3. Generate JWT token
-    4. Return token
-    '''
-
-    try:
-
-        existing_user = db.query(UserDB).filter(
-            UserDB.username == user.username
-        ).first()
-
-        # Username validation
-        if not existing_user:
-
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid username"
-            )
-
-        # Password validation
-        if existing_user.password != user.password:
-
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid password"
-            )
-
-        '''
-        Create token with username
-
-        "sub" = subject/user
-        '''
-
-        access_token = create_access_token(
-            data={"sub": user.username}
-        )
-
-        return {
-            "message": "Login successful",
-            "access_token": access_token,
-            "token_type": "bearer",
-            "expires_in": "1 hour"
-        }
-
-    except HTTPException as e:
-
-        raise e
-
-    except SQLAlchemyError:
+    if not existing_user:
 
         raise HTTPException(
-            status_code=500,
-            detail="Database connection error"
+            status_code=401,
+            detail="Invalid username"
         )
 
-    except Exception:
+    if existing_user.password != user.password:
 
         raise HTTPException(
-            status_code=500,
-            detail="Unable to login"
+            status_code=401,
+            detail="Invalid password"
         )
+
+    access_token = create_access_token(
+        data={"sub": user.username}
+    )
+
+    return {
+        "message": "Login successful",
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 # ============================================================
-# ✅ CREATE BOOK
+# ➕ CREATE BOOK API
 # ============================================================
 
 @app.post("/books")
@@ -479,128 +389,60 @@ def create_book(
     db: Session = Depends(get_db)
 ):
 
-    '''
-    Depends(verify_token)
+    existing_book = db.query(BookDB).filter(
+        BookDB.id == book.id
+    ).first()
 
-    Means:
-    Before API executes:
-        verify_token() runs first
+    if existing_book:
 
-    If token invalid:
-        API stops immediately
-    '''
-
-    try:
-
-        # Check duplicate ID
-        existing_book = db.query(BookDB).filter(
-            BookDB.id == book.id
-        ).first()
-
-        if existing_book:
-
-            raise HTTPException(
-                status_code=400,
-                detail="Book ID already exists"
-            )
-
-        # Check duplicate title
-        existing_title = db.query(BookDB).filter(
-            BookDB.title == book.title
-        ).first()
-
-        if existing_title:
-
-            raise HTTPException(
-                status_code=400,
-                detail="Book title already exists"
-            )
-
-        # Add book
-        new_book = BookDB(
-            id=book.id,
-            title=book.title,
-            author=book.author,
-            category=book.category,
-            published_year=book.published_year,
-            available=book.available
+        raise HTTPException(
+            status_code=400,
+            detail="Book ID already exists"
         )
 
-        db.add(new_book)
+    new_book = BookDB(
+        id=book.id,
+        title=book.title,
+        author=book.author,
+        category=book.category,
+        published_year=book.published_year,
+        available=book.available
+    )
 
-        db.commit()
+    db.add(new_book)
 
-        db.refresh(new_book)
+    db.commit()
 
-        return {
-            "message": "Book created",
-            "data": new_book
+    db.refresh(new_book)
+
+    return {
+        "message": "Book created successfully",
+        "data": {
+            "id": new_book.id,
+            "title": new_book.title,
+            "author": new_book.author,
+            "category": new_book.category,
+            "published_year": new_book.published_year,
+            "available": new_book.available
         }
-
-    except HTTPException as e:
-
-        raise e
-
-    except SQLAlchemyError:
-
-        db.rollback()
-
-        raise HTTPException(
-            status_code=500,
-            detail="Unable to insert data into database"
-        )
-
-    except Exception:
-
-        raise HTTPException(
-            status_code=500,
-            detail="Something went wrong while creating book"
-        )
+    }
 
 # ============================================================
-# ✅ READ ALL BOOKS
+# 📚 GET ALL BOOKS API
 # ============================================================
 
 @app.get("/books")
-def get_all_books(
+def get_books(
     user: str = Depends(verify_token),
     db: Session = Depends(get_db)
 ):
 
-    '''
-    Flow While Calling This API:
+    books = db.query(BookDB).all()
 
-    1. Read Authorization Header
-    2. Extract Bearer Token
-    3. verify_token() runs
-    4. jwt.decode() validates:
-        - Secret key
-        - Expiry
-        - Algorithm
-    5. If valid:
-        Continue API
-    6. If expired:
-        Return 401 Error
-    '''
-
-    try:
-
-        books = db.query(BookDB).all()
-
-        return {
-            "count": len(books),
-            "data": books
-        }
-
-    except Exception:
-
-        raise HTTPException(
-            status_code=500,
-            detail="Unable to fetch books"
-        )
+    return books
 
 # ============================================================
-# ✅ READ SINGLE BOOK
+# 📖 GET SINGLE BOOK API
 # ============================================================
 
 @app.get("/books/{book_id}")
@@ -610,34 +452,21 @@ def get_book(
     db: Session = Depends(get_db)
 ):
 
-    try:
+    book = db.query(BookDB).filter(
+        BookDB.id == book_id
+    ).first()
 
-        book = db.query(BookDB).filter(
-            BookDB.id == book_id
-        ).first()
-
-        if not book:
-
-            raise HTTPException(
-                status_code=404,
-                detail="Book not found"
-            )
-
-        return book
-
-    except HTTPException as e:
-
-        raise e
-
-    except Exception:
+    if not book:
 
         raise HTTPException(
-            status_code=500,
-            detail="Unable to fetch book"
+            status_code=404,
+            detail="Book not found"
         )
 
+    return book
+
 # ============================================================
-# ✅ UPDATE BOOK
+# ✏️ UPDATE BOOK API
 # ============================================================
 
 @app.put("/books/{book_id}")
@@ -648,48 +477,33 @@ def update_book(
     db: Session = Depends(get_db)
 ):
 
-    try:
+    book = db.query(BookDB).filter(
+        BookDB.id == book_id
+    ).first()
 
-        book = db.query(BookDB).filter(
-            BookDB.id == book_id
-        ).first()
-
-        if not book:
-
-            raise HTTPException(
-                status_code=404,
-                detail="Book not found"
-            )
-
-        book.title = updated_book.title
-        book.author = updated_book.author
-        book.category = updated_book.category
-        book.published_year = updated_book.published_year
-        book.available = updated_book.available
-
-        db.commit()
-
-        db.refresh(book)
-
-        return {
-            "message": "Book updated successfully"
-        }
-
-    except HTTPException as e:
-
-        raise e
-
-    except Exception:
-
-        db.rollback()
+    if not book:
 
         raise HTTPException(
-            status_code=500,
-            detail="Unable to update book"
+            status_code=404,
+            detail="Book not found"
         )
 
+    book.title = updated_book.title
+    book.author = updated_book.author
+    book.category = updated_book.category
+    book.published_year = updated_book.published_year
+    book.available = updated_book.available
+
+    db.commit()
+
+    db.refresh(book)
+
+    return {
+        "message": "Book updated successfully"
+    }
+
 # ============================================================
-# ✅ DELETE BOOK
+# ❌ DELETE BOOK API
 # ============================================================
 
 @app.delete("/books/{book_id}")
@@ -699,78 +513,102 @@ def delete_book(
     db: Session = Depends(get_db)
 ):
 
-    try:
+    book = db.query(BookDB).filter(
+        BookDB.id == book_id
+    ).first()
 
-        book = db.query(BookDB).filter(
-            BookDB.id == book_id
-        ).first()
-
-        if not book:
-
-            raise HTTPException(
-                status_code=404,
-                detail="Book not found"
-            )
-
-        db.delete(book)
-
-        db.commit()
-
-        return {
-            "message": "Book deleted successfully"
-        }
-
-    except HTTPException as e:
-
-        raise e
-
-    except Exception:
-
-        db.rollback()
+    if not book:
 
         raise HTTPException(
-            status_code=500,
-            detail="Unable to delete book"
+            status_code=404,
+            detail="Book not found"
         )
 
+    db.delete(book)
+
+    db.commit()
+
+    return {
+        "message": "Book deleted successfully"
+    }
+
 # ============================================================
-# 🔥 FINAL JWT FLOW
+# ✅ POSTMAN TESTING
 # ============================================================
 
-'''
-LOGIN FLOW
-------------
+# 1. REGISTER USER
+#
+# POST
+# http://127.0.0.1:8000/register
+#
+# BODY -> RAW -> JSON
+#
+# {
+#     "username": "admin",
+#     "password": "admin123"
+# }
 
-Client Login
-    ↓
-Validate User from MySQL
-    ↓
-Generate JWT Token
-    ↓
-Return Token to Client
+# ============================================================
 
+# 2. LOGIN USER
+#
+# POST
+# http://127.0.0.1:8000/login
+#
+# BODY -> RAW -> JSON
+#
+# {
+#     "username": "admin",
+#     "password": "admin123"
+# }
 
-API ACCESS FLOW
-----------------
+# ============================================================
 
-Client Calls API
-    ↓
-Send Token in Header
+# LOGIN RESPONSE
+#
+# {
+#   "message": "Login successful",
+#   "access_token": "eyJhbGciOi...",
+#   "token_type": "bearer"
+# }
 
-Authorization: Bearer eyJhbGc...
+# ============================================================
 
-    ↓
-verify_token() runs
-    ↓
-jwt.decode() validates:
-    ✅ Secret Key
-    ✅ Expiry Time
-    ✅ Algorithm
+# 3. COPY TOKEN
+#
+# COPY access_token VALUE
 
-    ↓
-If Valid:
-    Continue API
+# ============================================================
 
-If Expired:
-    Return 401 Error
-'''
+# 4. CREATE BOOK
+#
+# POST
+# http://127.0.0.1:8000/books
+#
+# HEADERS
+#
+# Authorization : Bearer YOUR_TOKEN
+#
+# BODY -> RAW -> JSON
+#
+# {
+#     "id": 1,
+#     "title": "Python",
+#     "author": "Sai",
+#     "category": "Programming",
+#     "published_year": 2025,
+#     "available": true
+# }
+
+# ============================================================
+
+# 5. GET ALL BOOKS
+#
+# GET
+# http://127.0.0.1:8000/books
+#
+# HEADERS
+#
+# Authorization : Bearer YOUR_TOKEN
+
+# ============================================================
