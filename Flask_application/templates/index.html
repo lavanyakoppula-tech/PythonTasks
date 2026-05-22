@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo Application</title>
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <h1>Todo Application</h1>
+
+    <ul>
+        {% for task in tasks %}
+            <li>
+                {{ task.name }} - {{ task.status }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="/add-task">Add New Task</a>
+
+</body>
+</html>
