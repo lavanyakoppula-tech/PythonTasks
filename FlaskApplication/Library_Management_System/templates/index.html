@@ -2,14 +2,255 @@
 
 {% block content %}
 
-<h1>📚 Library Management System</h1>
+<!-- HERO SECTION -->
 
-<h2>Library Timings</h2>
+<section class="hero">
 
-<p>
+    <div class="hero-left">
 
-09:00 AM to 06:00 PM
+        <h1>
 
-</p>
+            A Smart Library <br>
+            Management System <br>
+            for Everyday Usage
+
+        </h1>
+
+        <p>
+
+            Manage students, books, librarians,
+            issue books, return books and track
+            library activities in a real-world workflow
+            application.
+
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="/books" class="btn-primary">
+
+                Explore Books
+
+            </a>
+
+            <a href="/students" class="btn-secondary">
+
+                Learn More ↓
+
+            </a>
+
+        </div>
+
+        <div class="library-timing">
+
+            <h3>
+
+                🕘 Library Timings
+
+            </h3>
+
+            <p>
+
+                Open: 09:00 AM
+
+            </p>
+
+            <p>
+
+                Close: 06:00 PM
+
+            </p>
+
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE IMAGES -->
+
+    <div class="hero-right">
+
+        <img
+        src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f"
+        class="img1">
+
+        <img
+        src="https://images.unsplash.com/photo-1512820790803-83ca734da794"
+        class="img2">
+
+        <img
+        src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d"
+        class="img3">
+
+    </div>
+
+</section>
+
+<!-- FEATURES SECTION -->
+
+<section class="features">
+
+    <h2>
+
+        Features
+
+    </h2>
+
+    <div class="feature-box">
+
+        <div class="feature-card">
+
+            <h3>
+
+                👨‍🎓 Students
+
+            </h3>
+
+            <p>
+
+                Manage student records and departments.
+
+            </p>
+
+            <a href="/students">
+
+                Open
+
+            </a>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>
+
+                📚 Books
+
+            </h3>
+
+            <p>
+
+                Add, update and manage library books.
+
+            </p>
+
+            <a href="/books">
+
+                Open
+
+            </a>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>
+
+                👨‍💼 Librarians
+
+            </h3>
+
+            <p>
+
+                Manage librarian timings and availability.
+
+            </p>
+
+            <a href="/librarians">
+
+                Open
+
+            </a>
+
+        </div>
+
+        <div class="feature-card">
+
+            <h3>
+
+                📖 Issue Books
+
+            </h3>
+
+            <p>
+
+                Issue and return books with deadlines.
+
+            </p>
+
+            <a href="/issue-book">
+
+                Open
+
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- STATISTICS -->
+
+<section class="stats">
+
+    <h2>
+
+        Library Statistics
+
+    </h2>
+
+    <div class="stats-container">
+
+        <div class="stat-box">
+
+            <h1>
+
+                {{ total_books }}
+
+            </h1>
+
+            <p>
+
+                Total Books
+
+            </p>
+
+        </div>
+
+        <div class="stat-box">
+
+            <h1>
+
+                {{ total_students }}
+
+            </h1>
+
+            <p>
+
+                Total Students
+
+            </p>
+
+        </div>
+
+        <div class="stat-box">
+
+            <h1>
+
+                {{ total_issued }}
+
+            </h1>
+
+            <p>
+
+                Issued Books
+
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}

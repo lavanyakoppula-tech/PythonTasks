@@ -1,11 +1,10 @@
 # ============================================================
 # 📚 REAL-WORLD LIBRARY MANAGEMENT SYSTEM
-# 📚 FASTAPI + MYSQL + SQLALCHEMY
-# 📚 COMPLETE CRUD + ISSUE + RETURN + HISTORY
+# 📚 FASTAPI + MYSQL + REAL-TIME TABLE MAPPING
 # ============================================================
 
 # ============================================================
-# 🚀 INSTALL REQUIRED PACKAGES
+# 🚀 INSTALL PACKAGES
 # ============================================================
 
 '''
@@ -18,7 +17,7 @@ pip install fastapi uvicorn sqlalchemy pymysql
 
 from fastapi import FastAPI, HTTPException, Depends
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from sqlalchemy import (
     create_engine,
@@ -48,11 +47,9 @@ app = FastAPI()
 # 🗄️ MYSQL DATABASE CONNECTION
 # ============================================================
 
-DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/LibManagSys_db"
+DATABASE_URL = "mysql+pymysql://root:root@localhost:3306/library_db"
 
-engine = create_engine(
-    DATABASE_URL
-)
+engine = create_engine(DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
@@ -92,12 +89,6 @@ class UserDB(Base):
         nullable=False
     )
 
-    phone = Column(
-        String(20),
-        unique=True,
-        nullable=False
-    )
-
 # ============================================================
 # 👨‍🏫 LIBRARIANS TABLE
 # ============================================================
@@ -121,10 +112,6 @@ class LibrarianDB(Base):
         String(100),
         unique=True,
         nullable=False
-    )
-
-    shift_time = Column(
-        String(50)
     )
 
 # ============================================================
@@ -161,19 +148,9 @@ class BookDB(Base):
         nullable=False
     )
 
-    Book_uniqueid = Column(
-        String(100),
-        unique=True,
-        nullable=False
-    )
-
     published_year = Column(
         Integer,
         nullable=False
-    )
-
-    rack_number = Column(
-        String(50)
     )
 
     available = Column(
@@ -225,11 +202,6 @@ class IssuedBookDB(Base):
         nullable=True
     )
 
-    fine_amount = Column(
-        Integer,
-        default=0
-    )
-
     issue_status = Column(
         Boolean,
         default=True
@@ -251,7 +223,6 @@ class User(BaseModel):
     student_name: str
     email: str
     department: str
-    phone: str
 
 # ------------------------------------------------------------
 
@@ -260,7 +231,6 @@ class Librarian(BaseModel):
     id: int
     librarian_name: str
     employee_id: str
-    shift_time: str
 
 # ------------------------------------------------------------
 
@@ -271,10 +241,13 @@ class Book(BaseModel):
     author: str
     category: str
     edition: str
-    Book_uniqueid: str
     published_year: int
-    rack_number: str
     available: bool = True
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
 # ------------------------------------------------------------
 
 class IssueBook(BaseModel):
@@ -308,7 +281,7 @@ def get_db():
 def home():
 
     return {
-        "message": "Real-World Library Management System 🚀"
+        "message": "Real Library Management System 🚀"
     }
 
 # ============================================================
@@ -324,22 +297,21 @@ def add_user(
     try:
 
         existing_user = db.query(UserDB).filter(
-            UserDB.email == user.email
+            UserDB.id == user.id
         ).first()
 
         if existing_user:
 
             raise HTTPException(
                 status_code=400,
-                detail="Email already exists"
+                detail="User already exists"
             )
 
         new_user = UserDB(
             id=user.id,
             student_name=user.student_name,
             email=user.email,
-            department=user.department,
-            phone=user.phone
+            department=user.department
         )
 
         db.add(new_user)
@@ -364,22 +336,6 @@ def add_user(
         )
 
 # ============================================================
-# ✅ GET USERS
-# ============================================================
-
-@app.get("/users")
-def get_users(
-    db: Session = Depends(get_db)
-):
-
-    users = db.query(UserDB).all()
-
-    return {
-        "count": len(users),
-        "data": users
-    }
-
-# ============================================================
 # ✅ ADD LIBRARIAN
 # ============================================================
 
@@ -391,24 +347,23 @@ def add_librarian(
 
     try:
 
-        existing = db.query(
+        existing_librarian = db.query(
             LibrarianDB
         ).filter(
-            LibrarianDB.employee_id == librarian.employee_id
+            LibrarianDB.id == librarian.id
         ).first()
 
-        if existing:
+        if existing_librarian:
 
             raise HTTPException(
                 status_code=400,
-                detail="Employee ID already exists"
+                detail="Librarian already exists"
             )
 
         new_librarian = LibrarianDB(
             id=librarian.id,
             librarian_name=librarian.librarian_name,
-            employee_id=librarian.employee_id,
-            shift_time=librarian.shift_time
+            employee_id=librarian.employee_id
         )
 
         db.add(new_librarian)
@@ -433,24 +388,6 @@ def add_librarian(
         )
 
 # ============================================================
-# ✅ GET LIBRARIANS
-# ============================================================
-
-@app.get("/librarians")
-def get_librarians(
-    db: Session = Depends(get_db)
-):
-
-    librarians = db.query(
-        LibrarianDB
-    ).all()
-
-    return {
-        "count": len(librarians),
-        "data": librarians
-    }
-
-# ============================================================
 # ✅ ADD BOOK
 # ============================================================
 
@@ -463,14 +400,14 @@ def add_book(
     try:
 
         existing_book = db.query(BookDB).filter(
-            BookDB.Book_uniqueid == book.Book_uniqueid
+            BookDB.id == book.id
         ).first()
 
         if existing_book:
 
             raise HTTPException(
                 status_code=400,
-                detail="ISBN already exists"
+                detail="Book already exists"
             )
 
         new_book = BookDB(
@@ -479,10 +416,8 @@ def add_book(
             author=book.author,
             category=book.category,
             edition=book.edition,
-            Book_uniqueid=book.Book_uniqueid,
             published_year=book.published_year,
-            rack_number=book.rack_number,
-            available = Column(Boolean, default=True)
+            available=True
         )
 
         db.add(new_book)
@@ -515,128 +450,20 @@ def get_books(
     db: Session = Depends(get_db)
 ):
 
-    books = db.query(BookDB).all()
-
-    return {
-        "count": len(books),
-        "data": books
-    }
-
-# ============================================================
-# ✅ GET BOOK BY ID
-# ============================================================
-
-@app.get("/books/{book_id}")
-def get_book_by_id(
-    book_id: int,
-    db: Session = Depends(get_db)
-):
-
-    book = db.query(BookDB).filter(
-        BookDB.id == book_id
-    ).first()
-
-    if not book:
-
-        raise HTTPException(
-            status_code=404,
-            detail="Book not found"
-        )
-
-    return book
-
-# ============================================================
-# ✅ UPDATE BOOK
-# ============================================================
-
-@app.put("/books/{book_id}")
-def update_book(
-    book_id: int,
-    updated_book: Book,
-    db: Session = Depends(get_db)
-):
-
     try:
 
-        book = db.query(BookDB).filter(
-            BookDB.id == book_id
-        ).first()
-
-        if not book:
-
-            raise HTTPException(
-                status_code=404,
-                detail="Book not found"
-            )
-
-        book.title = updated_book.title
-        book.author = updated_book.author
-        book.category = updated_book.category
-        book.edition = updated_book.edition
-        book.published_year = updated_book.published_year
-        book.rack_number = updated_book.rack_number
-
-        db.commit()
+        books = db.query(BookDB).all()
 
         return {
-            "message": "Book updated successfully"
+            "count": len(books),
+            "data": books
         }
-
-    except HTTPException as e:
-
-        raise e
 
     except Exception:
 
-        db.rollback()
-
         raise HTTPException(
             status_code=500,
-            detail="Unable to update book"
-        )
-
-# ============================================================
-# ✅ DELETE BOOK
-# ============================================================
-
-@app.delete("/books/{book_id}")
-def delete_book(
-    book_id: int,
-    db: Session = Depends(get_db)
-):
-
-    try:
-
-        book = db.query(BookDB).filter(
-            BookDB.id == book_id
-        ).first()
-
-        if not book:
-
-            raise HTTPException(
-                status_code=404,
-                detail="Book not found"
-            )
-
-        db.delete(book)
-
-        db.commit()
-
-        return {
-            "message": "Book deleted successfully"
-        }
-
-    except HTTPException as e:
-
-        raise e
-
-    except Exception:
-
-        db.rollback()
-
-        raise HTTPException(
-            status_code=500,
-            detail="Unable to delete book"
+            detail="Unable to fetch books"
         )
 
 # ============================================================
@@ -651,7 +478,7 @@ def issue_book(
 
     try:
 
-        # CHECK BOOK
+        # Check Book
         book = db.query(BookDB).filter(
             BookDB.id == issue.book_id
         ).first()
@@ -663,7 +490,7 @@ def issue_book(
                 detail="Book not found"
             )
 
-        # CHECK AVAILABILITY
+        # Check Availability
         if book.available == False:
 
             raise HTTPException(
@@ -671,7 +498,7 @@ def issue_book(
                 detail="Book already issued"
             )
 
-        # CHECK USER
+        # Check User
         user = db.query(UserDB).filter(
             UserDB.id == issue.user_id
         ).first()
@@ -683,10 +510,8 @@ def issue_book(
                 detail="User not found"
             )
 
-        # CHECK LIBRARIAN
-        librarian = db.query(
-            LibrarianDB
-        ).filter(
+        # Check Librarian
+        librarian = db.query(LibrarianDB).filter(
             LibrarianDB.id == issue.librarian_id
         ).first()
 
@@ -697,14 +522,14 @@ def issue_book(
                 detail="Librarian not found"
             )
 
-        # ISSUE DATES
+        # Dates
         issued_date = date.today()
 
         return_deadline = issued_date + timedelta(
             days=issue.days
         )
 
-        # CREATE ISSUE RECORD
+        # Issue Record
         issue_record = IssuedBookDB(
             book_id=issue.book_id,
             user_id=issue.user_id,
@@ -716,14 +541,15 @@ def issue_book(
 
         db.add(issue_record)
 
-        # UPDATE AVAILABILITY
+        # Update Availability
         book.available = False
 
         db.commit()
 
         return {
             "message": "Book issued successfully",
-            "issued_date": issued_date,
+            "issued_to": user.student_name,
+            "issued_by": librarian.librarian_name,
             "deadline": return_deadline
         }
 
@@ -770,12 +596,10 @@ def return_book(
             BookDB.id == book_id
         ).first()
 
-        # UPDATE ISSUE RECORD
         issue_record.issue_status = False
 
         issue_record.returned_date = date.today()
 
-        # UPDATE BOOK STATUS
         book.available = True
 
         db.commit()
@@ -798,7 +622,7 @@ def return_book(
         )
 
 # ============================================================
-# ✅ AVAILABLE BOOKS
+# ✅ GET AVAILABLE BOOKS
 # ============================================================
 
 @app.get("/available-books")
@@ -806,17 +630,26 @@ def available_books(
     db: Session = Depends(get_db)
 ):
 
-    books = db.query(BookDB).filter(
-        BookDB.available == True
-    ).all()
+    try:
 
-    return {
-        "count": len(books),
-        "data": books
-    }
+        books = db.query(BookDB).filter(
+            BookDB.available == True
+        ).all()
+
+        return {
+            "count": len(books),
+            "data": books
+        }
+
+    except Exception:
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to fetch available books"
+        )
 
 # ============================================================
-# ✅ ISSUED BOOKS HISTORY
+# ✅ GET ISSUED BOOKS HISTORY
 # ============================================================
 
 @app.get("/issued-books")
@@ -824,12 +657,36 @@ def issued_books(
     db: Session = Depends(get_db)
 ):
 
-    books = db.query(
-        IssuedBookDB
-    ).all()
+    try:
 
-    return {
-        "count": len(books),
-        "data": books
-    }
+        books = db.query(
+            IssuedBookDB
+        ).all()
 
+        return {
+            "count": len(books),
+            "data": books
+        }
+
+    except Exception:
+
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to fetch issued books"
+        )
+
+# ============================================================
+# 🌐 RUN SERVER
+# ============================================================
+
+'''
+uvicorn main:app --reload
+'''
+
+# ============================================================
+# 🌐 SWAGGER URL
+# ============================================================
+
+'''
+http://127.0.0.1:8000/docs
+'''
