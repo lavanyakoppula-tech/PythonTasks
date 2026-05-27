@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Books</h1>
+
+<form method="POST">
+
+<input type="text"
+name="title"
+placeholder="Book Title"
+required>
+
+<input type="text"
+name="author"
+placeholder="Author"
+required>
+
+<input type="text"
+name="isbn"
+placeholder="ISBN"
+required>
+
+<input type="text"
+name="category"
+placeholder="Category"
+required>
+
+<button type="submit">
+
+Add Book
+
+</button>
+
+</form>
+
+<table>
+
+<tr>
+
+<th>ID</th>
+<th>Title</th>
+<th>Author</th>
+<th>ISBN</th>
+<th>Category</th>
+<th>Status</th>
+<th>Actions</th>
+
+</tr>
+
+{% for book in books %}
+
+<tr>
+
+<td>{{ book.id }}</td>
+
+<td>{{ book.title }}</td>
+
+<td>{{ book.author }}</td>
+
+<td>{{ book.isbn }}</td>
+
+<td>{{ book.category }}</td>
+
+<td>
+
+{% if book.available %}
+
+Available
+
+{% else %}
+
+Issued
+
+{% endif %}
+
+</td>
+
+<td>
+
+<a href="/update-book/{{ book.id }}">
+
+Edit
+
+</a>
+
+|
+
+<a href="/delete-book/{{ book.id }}">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

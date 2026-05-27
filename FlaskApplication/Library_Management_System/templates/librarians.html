@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>📚 Librarians Management</h1>
+
+<form method="POST">
+
+<input type="text"
+name="librarian_name"
+placeholder="Librarian Name"
+required>
+
+<input type="text"
+name="librarian_id"
+placeholder="Librarian ID"
+required>
+
+<select name="shift_time" required>
+
+<option value="Morning">
+
+Morning Shift
+
+</option>
+
+<option value="Evening">
+
+Evening Shift
+
+</option>
+
+</select>
+
+<select name="availability" required>
+
+<option value="True">
+
+Available
+
+</option>
+
+<option value="False">
+
+Not Available
+
+</option>
+
+</select>
+
+<button type="submit">
+
+Add Librarian
+
+</button>
+
+</form>
+
+<table>
+
+<tr>
+
+<th>ID</th>
+<th>Name</th>
+<th>Librarian ID</th>
+<th>Shift</th>
+<th>Availability</th>
+<th>Library Timings</th>
+<th>Actions</th>
+
+</tr>
+
+{% for librarian in librarians %}
+
+<tr>
+
+<td>{{ librarian.id }}</td>
+
+<td>{{ librarian.librarian_name }}</td>
+
+<td>{{ librarian.librarian_id }}</td>
+
+<td>{{ librarian.shift_time }}</td>
+
+<td>
+
+{% if librarian.availability %}
+
+Available
+
+{% else %}
+
+Not Available
+
+{% endif %}
+
+</td>
+
+<td>
+
+{{ librarian.library_open }}
+-
+{{ librarian.library_close }}
+
+</td>
+
+<td>
+
+<a href="/update-librarian/{{ librarian.id }}">
+
+Edit
+
+</a>
+
+|
+
+<a href="/delete-librarian/{{ librarian.id }}">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

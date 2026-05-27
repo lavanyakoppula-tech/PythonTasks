@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Students</h1>
+
+<form method="POST">
+
+<input type="text"
+name="student_name"
+placeholder="Student Name"
+required>
+
+<input type="email"
+name="email"
+placeholder="Email"
+required>
+
+<input type="text"
+name="department"
+placeholder="Department"
+required>
+
+<button type="submit">
+
+Add Student
+
+</button>
+
+</form>
+
+<table>
+
+<tr>
+
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Department</th>
+<th>Actions</th>
+
+</tr>
+
+{% for student in students %}
+
+<tr>
+
+<td>{{ student.id }}</td>
+
+<td>{{ student.student_name }}</td>
+
+<td>{{ student.email }}</td>
+
+<td>{{ student.department }}</td>
+
+<td>
+
+<a href="/update-student/{{ student.id }}">
+
+Edit
+
+</a>
+
+|
+
+<a href="/delete-student/{{ student.id }}">
+
+Delete
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

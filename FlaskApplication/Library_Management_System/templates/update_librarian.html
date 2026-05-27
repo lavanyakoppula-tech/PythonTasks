@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Update Librarian</h1>
+
+<form method="POST">
+
+<input type="text"
+name="librarian_name"
+value="{{ librarian.librarian_name }}"
+required>
+
+<input type="text"
+name="librarian_id"
+value="{{ librarian.librarian_id }}"
+required>
+
+<select name="shift_time">
+
+<option value="Morning">
+
+Morning Shift
+
+</option>
+
+<option value="Evening">
+
+Evening Shift
+
+</option>
+
+</select>
+
+<select name="availability">
+
+<option value="True">
+
+Available
+
+</option>
+
+<option value="False">
+
+Not Available
+
+</option>
+
+</select>
+
+<button type="submit">
+
+Update Librarian
+
+</button>
+
+</form>
+
+{% endblock %}

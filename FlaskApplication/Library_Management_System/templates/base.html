@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Library Management System</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <a href="/">Home</a>
+
+    <a href="/students">Students</a>
+
+    <a href="/librarians">Librarians</a>
+
+    <a href="/books">Books</a>
+
+    <a href="/issue-book">Issue Book</a>
+
+    <a href="/issued-books">Issued Books</a>
+
+    <a href="/logs">Logs</a>
+
+</nav>
+
+<div class="container">
+
+{% with messages = get_flashed_messages() %}
+
+{% if messages %}
+
+{% for msg in messages %}
+
+<div class="flash">
+
+    {{ msg }}
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+{% endwith %}
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+</body>
+</html>

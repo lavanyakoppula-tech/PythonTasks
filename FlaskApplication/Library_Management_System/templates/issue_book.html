@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Issue Book</h1>
+
+<form method="POST">
+
+<label>Select Student</label>
+
+<select name="student_id" required>
+
+<option value="">Select Student</option>
+
+{% for student in students %}
+
+<option value="{{ student.id }}">
+
+{{ student.student_name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<label>Select Librarian</label>
+
+<select name="librarian_id" required>
+
+<option value="">Select Librarian</option>
+
+{% for librarian in librarians %}
+
+<option value="{{ librarian.id }}">
+
+{{ librarian.librarian_name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<label>Select Book</label>
+
+<select name="book_id" required>
+
+<option value="">Select Book</option>
+
+{% for book in books %}
+
+<option value="{{ book.id }}">
+
+{{ book.title }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<label>Return Days</label>
+
+<input type="number"
+name="days"
+placeholder="Enter Days"
+required>
+
+<p style="color:red;">
+
+⚠ If return days exceed 15 days,
+fine amount will be applied.
+
+</p>
+
+<button type="submit">
+
+Issue Book
+
+</button>
+
+</form>
+
+{% endblock %}
