@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gemini AI Chatbot</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Gemini AI Chatbot</h1>
+
+        <textarea
+            id="question"
+            placeholder="Ask your question..."
+        ></textarea>
+
+        <button onclick="askAI()">
+            Ask AI
+        </button>
+
+        <div class="output">
+
+            <h3>Your Question</h3>
+            <p id="userQuestion"></p>
+
+            <h3>AI Response</h3>
+            <p id="aiResponse"></p>
+
+        </div>
+
+    </div>
+
+    <script
+        src="{{ url_for('static', filename='script.js') }}"
+    ></script>
+
+</body>
+
+</html>

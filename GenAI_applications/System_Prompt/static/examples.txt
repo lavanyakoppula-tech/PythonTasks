@@ -1,0 +1,17 @@
+How many books are available?
+
+Who borrowed Python Basics?
+
+List all Java books.
+
+Which member borrowed Clean Code?
+
+Hi
+
+Hello
+
+Who is Virat Kohli?
+
+What is IPL?
+
+Tell me today's cricket score.

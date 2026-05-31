@@ -1,0 +1,17 @@
+.main-title{
+    text-align:center;
+    font-size:40px;
+    font-weight:bold;
+    color:#1E88E5;
+}
+
+.chat-container{
+    border-radius:10px;
+    padding:10px;
+}
+
+.footer{
+    text-align:center;
+    color:gray;
+    margin-top:20px;
+}
